@@ -258,9 +258,9 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
         >
              {/* Header - Centered on Right Half */}
             <div 
-                className="absolute top-[88px] w-full text-center pointer-events-auto z-50 lg:right-[25%] lg:w-[600px] lg:translate-x-[calc(50%-50px)]"
+                className="absolute top-[78px] md:top-[88px] w-full text-center pointer-events-auto z-50 lg:right-[25%] lg:w-[600px] lg:translate-x-[calc(50%-50px)]"
             >
-                <h1 className="text-4xl md:text-7xl font-bold font-mono tracking-tighter text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+                <h1 className="text-[7vw] sm:text-4xl md:text-7xl font-bold font-mono tracking-tighter text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
                     <GlitchText text="NEURAL_NAVIGATION" />
                 </h1>
             </div>
@@ -286,12 +286,12 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
                    <div className={`
                      relative flex items-center justify-center rounded-full transition-all duration-500 ease-out z-10
                      ${isHovered 
-                        ? 'w-20 h-20 bg-cyan-500/10 border-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.4)]' 
-                        : 'w-14 h-14 bg-[#0f172a]/80 border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_15px_rgba(0,0,0,0.5)]'}
+                        ? 'w-16 h-16 md:w-20 md:h-20 bg-cyan-500/10 border-cyan-400 shadow-[0_0_30px_rgba(34,211,238,0.4)]' 
+                        : 'w-10 h-10 md:w-14 md:h-14 bg-[#0f172a]/80 border-cyan-500/30 hover:border-cyan-500/50 shadow-[0_0_15px_rgba(0,0,0,0.5)]'}
                      border backdrop-blur-xl
                    `}>
                      <node.icon 
-                       size={isHovered ? 36 : 22} 
+                       size={isHovered ? (window.innerWidth < 768 ? 28 : 36) : (window.innerWidth < 768 ? 18 : 22)} 
                        className={`transition-colors duration-300 ${isHovered ? 'text-cyan-50' : 'text-cyan-400/80 group-hover:text-cyan-400'}`} 
                      />
     
