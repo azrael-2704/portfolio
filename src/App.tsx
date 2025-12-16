@@ -68,13 +68,19 @@ const AppContent = () => {
       */}
       {systemState !== 'LANDING' && (
           <motion.div 
-            initial={{ width: '100%', left: 0, top: '10px' }}
+            layout
+            initial={false}
             animate={{ 
               width: systemState === 'ONLINE' ? (isHome ? '40%' : '25%') : '100%',
               left: systemState === 'ONLINE' ? (isHome ? 'calc(12.5% - 150px)' : '0') : '0',
               top: systemState === 'ONLINE' ? '88px' : '10px',
             }}
-            transition={{ duration: 0.35, ease: "circOut" }} 
+            transition={{ 
+              type: "spring", 
+              stiffness: 120, 
+              damping: 20,
+              mass: 1
+            }} 
             onAnimationStart={() => setIsResizing(true)}
             onAnimationComplete={() => setIsResizing(false)}
             style={{ willChange: "width, left, top" }}

@@ -46,9 +46,9 @@ const NeuralBackground: React.FC = () => {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Global Glow Effect
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = 'rgba(34, 211, 238, 0.6)'; // Reduce alpha slightly for perf/aesthetics
+      // Global Glow Effect - Disabled for performance (10fps fix)
+      // ctx.shadowBlur = 15;
+      // ctx.shadowColor = 'rgba(34, 211, 238, 0.6)';
 
       particles.forEach((p, i) => {
         p.x += p.vx;
@@ -61,9 +61,9 @@ const NeuralBackground: React.FC = () => {
         // Mouse interaction (Stronger attraction, Tighter radius)
         const dx = mouseRef.current.x - p.x;
         const dy = mouseRef.current.y - p.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx * dx + dy * dy;
         
-        if (distance < 120) {
+        if (distSq < 14400) { // 120 * 120
           // Increased force from 0.005 to 0.02 for noticeable magnetic pull
           p.x += dx * 0.02;
           p.y += dy * 0.02;
@@ -80,9 +80,10 @@ const NeuralBackground: React.FC = () => {
           const p2 = particles[j];
           const dx2 = p.x - p2.x;
           const dy2 = p.y - p2.y;
-          const dist2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+          const distSq2 = dx2 * dx2 + dy2 * dy2;
 
-          if (dist2 < 120) {
+          if (distSq2 < 14400) {
+            const dist2 = Math.sqrt(distSq2);
             ctx.beginPath();
             ctx.strokeStyle = `rgba(34, 211, 238, ${0.2 * (1 - dist2 / 120)})`; 
             ctx.lineWidth = 0.6;
@@ -121,4 +122,4 @@ const NeuralBackground: React.FC = () => {
   );
 };
 
-export default NeuralBackground;
+export default React.memo(NeuralBackground);

@@ -77,10 +77,8 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
     let time = 0;
 
     const render = () => {
-      // Use getBoundingClientRect for precise sub-pixel dimensions matching layout
-      const rect = containerRef.current?.getBoundingClientRect();
-      const width = rect?.width || window.innerWidth;
-      const height = rect?.height || window.innerHeight;
+      const width = canvas.width / (window.devicePixelRatio || 1);
+      const height = canvas.height / (window.devicePixelRatio || 1);
       
       time += 0.005;
       
@@ -101,11 +99,14 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
               if (i >= j) return;
               const tx = (target.x / 100) * width - 50;
               const ty = (target.y / 100) * height + 15;
-              const dist = Math.hypot(sx - tx, sy - ty);
+              const dx = sx - tx;
+              const dy = sy - ty;
+              const distSq = dx * dx + dy * dy;
               
               const threshold = Math.min(width, height) * 0.35;
+              const thresholdSq = threshold * threshold;
 
-              if (dist < threshold) {
+              if (distSq < thresholdSq) {
                 ctx.beginPath();
                 ctx.moveTo(sx, sy);
                 ctx.lineTo(tx, ty);
@@ -114,7 +115,7 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
                 const isConnected = interactable && currentHoverId && (source.id === currentHoverId || target.id === currentHoverId);
                 
                 if (isConnected) {
-                    ctx.shadowBlur = 20;
+                    ctx.shadowBlur = 10; // Reduced from 20 for perf
                     ctx.shadowColor = 'rgba(34, 211, 238, 1)';
                     ctx.strokeStyle = '#22d3ee';
                     ctx.lineWidth = 2.5;
@@ -238,4 +239,4 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
   );
 };
 
-export default NeuralNavigation;
+export default React.memo(NeuralNavigation);

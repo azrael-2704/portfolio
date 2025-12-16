@@ -104,6 +104,7 @@ const Navbar: React.FC = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             className="absolute top-full right-0 mt-4 w-56 bg-[#050a14] border border-white/10 rounded-lg p-2 shadow-xl backdrop-blur-xl"
                         >
                             <div className="px-3 py-2 text-xs font-mono text-gray-500 border-b border-white/5 mb-1">TECHNICAL_MATRIX</div>
@@ -132,6 +133,7 @@ const Navbar: React.FC = () => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 10 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             className="absolute top-full right-0 mt-4 w-56 bg-[#050a14] border border-white/10 rounded-lg p-2 shadow-xl backdrop-blur-xl"
                         >
                             <div className="px-3 py-2 text-xs font-mono text-gray-500 border-b border-white/5 mb-1">DATA_LOGS</div>
@@ -185,6 +187,7 @@ const Navbar: React.FC = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
+                transition={{ type: "spring", stiffness: 200, damping: 25 }}
                 className="fixed inset-0 z-40 bg-[#050a14] pt-24 px-6 flex flex-col gap-8 overflow-y-auto"
             >
                 {/* Static Section */}
@@ -242,4 +245,4 @@ const Navbar: React.FC = () => {
   );
 };
 
-export default Navbar;
+export default React.memo(Navbar);

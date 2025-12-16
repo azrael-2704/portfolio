@@ -9,7 +9,12 @@ const ProjectCard = ({ project, index, onClick }: { project: any, index: number,
         layoutId={`project-card-${project.id}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.1 }}
+        transition={{ 
+            delay: index * 0.1,
+            type: "spring",
+            stiffness: 100,
+            damping: 20
+        }}
         onClick={onClick}
         className="group relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0f1c] cursor-pointer h-full flex flex-col hover:border-cyan-500/50 transition-colors"
     >
@@ -106,6 +111,7 @@ const ProjectModal = ({ project, onClose }: { project: any, onClose: () => void 
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 200, damping: 25 }}
             >
                 {/* Close Button */}
                 <button 

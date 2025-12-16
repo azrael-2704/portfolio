@@ -24,7 +24,12 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
         <motion.div
           initial={{ opacity: 0, scale: 0.5, x: -50 }}
           animate={{ opacity: 1, scale: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ 
+            type: "spring",
+            stiffness: 100,
+            damping: 20,
+            duration: 0.8 
+          }}
           className="relative flex-shrink-0"
         >
           <div className="absolute inset-0 bg-cyan-500/10 blur-[100px] rounded-full"></div>
@@ -69,7 +74,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.4, type: "spring", stiffness: 100, damping: 20 }}
                 className="text-xl md:text-2xl text-gray-400 font-mono mb-8 h-8 flex items-center gap-3"
             >
                 <span className="text-gray-500">&lt;</span>
@@ -81,7 +86,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 100, damping: 20 }}
                 className="max-w-xl text-gray-400 leading-relaxed mb-10 text-lg"
             >
                 {profile.bio}
@@ -91,7 +96,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
+                transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 20 }}
                 className="flex flex-wrap gap-6 items-center"
             >
                 <button 
