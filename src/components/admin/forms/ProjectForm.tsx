@@ -127,8 +127,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialData, onChange }) => {
             </div>
 
             {/* Type & Featured */}
-            <div className="flex gap-6">
-                 <div className="space-y-2 w-1/2">
+            <div className="flex flex-col md:flex-row gap-6">
+                 <div className="space-y-2 w-full md:w-1/2">
                     <label className="text-xs font-mono text-cyan-400">TYPE</label>
                     <select 
                         value={formData.type}
@@ -140,7 +140,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialData, onChange }) => {
                         <option value="experiment">Experiment</option>
                     </select>
                  </div>
-                 <div className="space-y-2 flex items-center pt-6">
+                 <div className="space-y-2 flex items-center pt-0 md:pt-6">
                     <input 
                         type="checkbox"
                         checked={formData.featured}

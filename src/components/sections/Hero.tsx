@@ -62,10 +62,10 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
               transition={{ delay: 0.3 }}
               className="flex flex-col items-center md:items-start leading-none mb-6"
             >
-              <h1 className="text-6xl md:text-8xl font-black font-mono tracking-tighter text-white mb-2 md:mb-4">
+              <h1 className="text-4xl md:text-6xl lg:text-8xl font-black font-mono tracking-tighter text-white mb-2 md:mb-4">
                 <GlitchText text="AMARTYA" />
               </h1>
-              <h1 className="text-6xl md:text-8xl font-black font-mono tracking-tighter text-white">
+              <h1 className="text-4xl md:text-6xl lg:text-8xl font-black font-mono tracking-tighter text-white">
                 <GlitchText text="ANAYACHALA" />
               </h1>
             </motion.div>
@@ -97,7 +97,7 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, type: "spring", stiffness: 100, damping: 20 }}
-                className="flex flex-wrap gap-6 items-center"
+                className="flex flex-wrap gap-6 items-center justify-center md:justify-start"
             >
                 <button 
                 onClick={onStart}

@@ -36,6 +36,36 @@ const NODES: NodeData[] = [
   { id: 'contact', label: 'Contact', x: 75, y: 80, route: '/contact', icon: Mail },
 ];
 
+const MOBILE_NODES: NodeData[] = [
+    { id: 'about', label: 'About Me', x: 61.5, y: 18, route: '/about', icon: User }, // Anchor at 18
+    
+    { id: 'skills', label: 'Skills', x: 38, y: 25, route: '/skills', icon: Cpu }, // 18+7
+    { id: 'projects', label: 'Projects', x: 85, y: 32, route: '/projects', icon: Code }, // 25+7
+    
+    { id: 'experience', label: 'Experience', x: 38, y: 39, route: '/experience', icon: Briefcase }, // 32+7
+    { id: 'roadmap', label: 'Roadmap', x: 85, y: 46, route: '/roadmap', icon: MapIcon }, // 39+7
+    
+    { id: 'philosophy', label: 'Philosophy', x: 38, y: 53, route: '/philosophy', icon: Lightbulb }, // 46+7
+    { id: 'achievements', label: 'Achievements', x: 85, y: 60, route: '/achievements', icon: Award }, // 53+7
+    
+    { id: 'blog', label: 'Writings', x: 38, y: 67, route: '/blog', icon: BookOpen }, // 60+7
+    { id: 'resume', label: 'Resume', x: 85, y: 74, route: '/resume', icon: FileText }, // 67+7
+    
+    { id: 'contact', label: 'Contact', x: 61.5, y: 81, route: '/contact', icon: Mail }, // 74+7
+];
+
+const MOBILE_CONNECTIONS = [
+  [0, 1], // About -> Skills
+  [1, 2], // Skills -> Projects
+  [2, 3], // Projects -> Exp
+  [3, 4], // Exp -> Roadmap
+  [4, 5], // Roadmap -> Phil
+  [5, 6], // Phil -> Ach
+  [6, 7], // Ach -> Blog
+  [7, 8], // Blog -> Resume
+  [8, 9]  // Resume -> Contact
+];
+
 interface NeuralNavigationProps {
     interactable?: boolean;
 }
@@ -47,6 +77,23 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+  const [activeNodes, setActiveNodes] = useState<NodeData[]>(NODES);
+  
+  // Responsive Check
+  useEffect(() => {
+      const handleResize = () => {
+          if (window.innerWidth < 1024) {
+              setActiveNodes(MOBILE_NODES);
+          } else {
+              setActiveNodes(NODES);
+          }
+      };
+      
+      window.addEventListener('resize', handleResize);
+      handleResize(); // Init
+      
+      return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Ref to track hovered node without triggering re-renders in the canvas loop
   const hoveredNodeIdRef = useRef<string | null>(null);
@@ -91,48 +138,88 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
       ctx.save();
       ctx.lineCap = 'round';
       
-      NODES.forEach((source, i) => {
-          const sx = (source.x / 100) * width - 50;
-          const sy = (source.y / 100) * height + 15;
+      ctx.save();
+      ctx.lineCap = 'round';
+      
+      if (width < 1024) {
+          // --- MOBILE: STRUCTURED GRAPH (DNA LADDER) ---
+          MOBILE_CONNECTIONS.forEach(([i, j]) => {
+              const source = activeNodes[i];
+              const target = activeNodes[j];
+              if (!source || !target) return;
 
-          NODES.forEach((target, j) => {
-              if (i >= j) return;
+              const sx = (source.x / 100) * width - 50;
+              const sy = (source.y / 100) * height + 15;
               const tx = (target.x / 100) * width - 50;
               const ty = (target.y / 100) * height + 15;
-              const dx = sx - tx;
-              const dy = sy - ty;
-              const distSq = dx * dx + dy * dy;
+
+              ctx.beginPath();
+              ctx.moveTo(sx, sy);
+              ctx.lineTo(tx, ty);
+
+              // Highlight Logic
+              const isConnected = interactable && currentHoverId && (source.id === currentHoverId || target.id === currentHoverId);
               
-              const threshold = Math.min(width, height) * 0.35;
-              const thresholdSq = threshold * threshold;
-
-              if (distSq < thresholdSq) {
-                ctx.beginPath();
-                ctx.moveTo(sx, sy);
-                ctx.lineTo(tx, ty);
-                
-                // Highlight Logic
-                const isConnected = interactable && currentHoverId && (source.id === currentHoverId || target.id === currentHoverId);
-                
-                if (isConnected) {
-                    ctx.shadowBlur = 10; // Reduced from 20 for perf
-                    ctx.shadowColor = 'rgba(34, 211, 238, 1)';
-                    ctx.strokeStyle = '#22d3ee';
-                    ctx.lineWidth = 2.5;
-                    ctx.globalAlpha = 1;
-                } else {
-                    ctx.shadowBlur = 0;
-                    // Increased visibility: Base opacity 0.3, pulsing slightly
-                    ctx.strokeStyle = `rgba(34, 211, 238, ${0.3 + Math.sin(time * 2 + i) * 0.1})`;
-                    ctx.lineWidth = 0.8; // Slightly thicker
-                    ctx.globalAlpha = 1;
-                }
-
-                ctx.stroke();
-                ctx.globalAlpha = 1;
+              if (isConnected) {
+                  ctx.shadowBlur = 10;
+                  ctx.shadowColor = 'rgba(34, 211, 238, 1)';
+                  ctx.strokeStyle = '#22d3ee';
+                  ctx.lineWidth = 2.5;
+                  ctx.globalAlpha = 1;
+              } else {
+                  ctx.shadowBlur = 0;
+                  ctx.strokeStyle = `rgba(34, 211, 238, 0.3)`;
+                  ctx.lineWidth = 1;
+                  ctx.globalAlpha = 1;
               }
+              ctx.stroke();
           });
-      });
+
+      } else {
+          // --- DESKTOP: NEURAL MESH (DISTANCE BASED) ---
+          activeNodes.forEach((source, i) => {
+              const sx = (source.x / 100) * width - 50;
+              const sy = (source.y / 100) * height + 15;
+
+              activeNodes.forEach((target, j) => {
+                  if (i >= j) return;
+                  const tx = (target.x / 100) * width - 50;
+                  const ty = (target.y / 100) * height + 15;
+                  const dx = sx - tx;
+                  const dy = sy - ty;
+                  const distSq = dx * dx + dy * dy;
+                  
+                  const threshold = Math.min(width, height) * 0.35;
+                  const thresholdSq = threshold * threshold;
+
+                  if (distSq < thresholdSq) {
+                    ctx.beginPath();
+                    ctx.moveTo(sx, sy);
+                    ctx.lineTo(tx, ty);
+                    
+                    // Highlight Logic
+                    const isConnected = interactable && currentHoverId && (source.id === currentHoverId || target.id === currentHoverId);
+                    
+                    if (isConnected) {
+                        ctx.shadowBlur = 10; // Reduced from 20 for perf
+                        ctx.shadowColor = 'rgba(34, 211, 238, 1)';
+                        ctx.strokeStyle = '#22d3ee';
+                        ctx.lineWidth = 2.5;
+                        ctx.globalAlpha = 1;
+                    } else {
+                        ctx.shadowBlur = 0;
+                        // Increased visibility: Base opacity 0.3, pulsing slightly
+                        ctx.strokeStyle = `rgba(34, 211, 238, ${0.3 + Math.sin(time * 2 + i) * 0.1})`;
+                        ctx.lineWidth = 0.8; // Slightly thicker
+                        ctx.globalAlpha = 1;
+                    }
+
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                  }
+              });
+          });
+      }
       ctx.restore();
 
       animId = requestAnimationFrame(render);
@@ -143,7 +230,7 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animId);
     };
-  }, [interactable]); 
+  }, [interactable, activeNodes]);  
 
   const handleNodeEnter = (id: string) => {
     setHoveredNodeId(id);
@@ -171,16 +258,15 @@ const NeuralNavigation: React.FC<NeuralNavigationProps> = ({ interactable = true
         >
              {/* Header - Centered on Right Half */}
             <div 
-                className="absolute top-[88px] right-[25%] text-center pointer-events-auto z-50 w-[600px]"
-                style={{ transform: 'translateX(calc(50% - 50px))' }}
+                className="absolute top-[88px] w-full text-center pointer-events-auto z-50 lg:right-[25%] lg:w-[600px] lg:translate-x-[calc(50%-50px)]"
             >
-                <h1 className="text-5xl md:text-7xl font-bold font-mono tracking-tighter text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+                <h1 className="text-4xl md:text-7xl font-bold font-mono tracking-tighter text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
                     <GlitchText text="NEURAL_NAVIGATION" />
                 </h1>
             </div>
 
              {/* Nodes - Pointer Events Auto */}
-             {NODES.map((node) => {
+             {activeNodes.map((node) => {
                const isHovered = hoveredNodeId === node.id;
                
                return (

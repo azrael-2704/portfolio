@@ -62,7 +62,7 @@ const Experience: React.FC = () => {
             <div className="max-w-7xl mx-auto relative">
                 
                 {/* Central Neural Line */}
-                <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-transparent -translate-x-1/2 md:translate-x-0" />
+                <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-500/50 via-purple-500/50 to-transparent -translate-x-1/2 md:translate-x-0" />
 
                 <div className="space-y-8">
                     {timeline.map((item: any) => {
@@ -100,12 +100,12 @@ const Experience: React.FC = () => {
                                 <div className="hidden md:block w-1/2" />
 
                                 {/* Node Center */}
-                                <div className={`absolute left-4 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#050a14] border-2 z-10 mt-6 shadow-[0_0_10px_currentColor] transition-colors ${theme.color === 'cyan' ? 'text-cyan-400' : theme.color === 'purple' ? 'text-purple-400' : theme.color === 'green' ? 'text-green-400' : 'text-amber-400'} border-current`}>
+                                <div className={`absolute left-8 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#050a14] border-2 z-10 mt-6 shadow-[0_0_10px_currentColor] transition-colors ${theme.color === 'cyan' ? 'text-cyan-400' : theme.color === 'purple' ? 'text-purple-400' : theme.color === 'green' ? 'text-green-400' : 'text-amber-400'} border-current`}>
                                      <div className={`w-2 h-2 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-current opacity-80`} />
                                 </div>
 
                                 {/* Content Card */}
-                                <div className={`w-full md:w-1/2 pl-12 md:pl-0 pr-0 ${isRight ? 'md:pl-8' : 'md:pr-8'}`}>
+                                <div className={`w-full md:w-1/2 pl-16 md:pl-0 pr-0 ${isRight ? 'md:pl-8' : 'md:pr-8'}`}>
                                     <div 
                                         className={`
                                             relative group p-6 rounded-xl border ${theme.border} ${theme.bg} backdrop-blur-sm

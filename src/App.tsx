@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Terminal } from 'lucide-react'
 import './index.css'
 import MainLayout from './layouts/MainLayout'
 import NeuralBackground from './components/canvas/NeuralBackground'
@@ -33,6 +34,16 @@ const AppContent = () => {
   const handleAdminMode = (section: string) => {
     setAdminSection(section);
   };
+  
+  const [mobileTerminalOpen, setMobileTerminalOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Track window resize for responsive logic
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
   const handleInitiate = () => {
@@ -71,9 +82,19 @@ const AppContent = () => {
             layout
             initial={false}
             animate={{ 
-              width: systemState === 'ONLINE' ? (isHome ? '40%' : '25%') : '100%',
-              left: systemState === 'ONLINE' ? (isHome ? 'calc(12.5% - 150px)' : '0') : '0',
-              top: systemState === 'ONLINE' ? '88px' : '10px',
+              // Desktop (lg): 40% (Home) / 25% (Subpage) | Mobile: 100% (Booting) -> 0% (Online)
+              width: ((systemState as string) === 'BOOTING' || (systemState as string) === 'LANDING') 
+                ? '100%' 
+                : (windowWidth >= 1024 
+                    ? (isHome ? '40%' : '25%') 
+                    : (mobileTerminalOpen ? '100%' : '0%')),
+              left: (systemState === 'ONLINE' && windowWidth >= 1024) 
+                ? (isHome ? 'calc(12.5% - 150px)' : '0') 
+                : '0',
+              top: (systemState === 'ONLINE' && windowWidth >= 1024) ? '88px' : '0', // Mobile full screen
+              opacity: (systemState === 'ONLINE' && windowWidth < 1024 && !mobileTerminalOpen) ? 0 : 1,
+              height: (systemState === 'ONLINE' && windowWidth < 1024 && mobileTerminalOpen) ? '100%' : 'auto', // Full height on mobile open
+              bottom: (systemState === 'ONLINE' && windowWidth < 1024 && mobileTerminalOpen) ? '0' : '10px' // Stretch
             }}
             transition={{ 
               type: "spring", 
@@ -83,13 +104,20 @@ const AppContent = () => {
             }} 
             onAnimationStart={() => setIsResizing(true)}
             onAnimationComplete={() => setIsResizing(false)}
-            style={{ willChange: "width, left, top" }}
-            className={`fixed bottom-[10px] z-40 flex items-start justify-center p-4 md:px-4 md:py-0 pointer-events-none transform-gpu`}
+            style={{ willChange: "width, left, top", pointerEvents: systemState === 'ONLINE' && windowWidth < 1024 && !mobileTerminalOpen ? 'none' : 'auto' }}
+            className={`fixed z-40 flex items-start justify-center pointer-events-none transform-gpu ${
+              (systemState as string) === 'BOOTING'
+                ? (windowWidth < 1024 ? 'p-[5px]' : 'p-4')
+                : (mobileTerminalOpen && windowWidth < 1024 
+                    ? 'pt-[70px] px-[5px] pb-[5px] bg-[#050a14]/95 backdrop-blur-xl' 
+                    : 'p-0 md:p-4 md:py-0')
+            }`}
           >
-              <div className="w-full h-full max-w-3xl pointer-events-auto">
+              <div className="w-full h-full max-w-3xl pointer-events-auto relative">
                   <TerminalIntro 
                     onComplete={handleBootComplete} 
                     onAdminMode={handleAdminMode}
+                    onMinimize={windowWidth < 1024 && systemState === 'ONLINE' ? () => setMobileTerminalOpen(false) : undefined}
                     instant={systemState === 'ONLINE'} 
                     isResizing={isResizing} 
                   />
@@ -153,16 +181,30 @@ const AppContent = () => {
             />
         )}
       </AnimatePresence>
+      
+      {/* Mobile Terminal Toggle FAB */}
+      {systemState === 'ONLINE' && !mobileTerminalOpen && (
+        <div className="lg:hidden fixed bottom-6 right-6 z-50">
+            <button 
+                onClick={() => setMobileTerminalOpen(true)}
+                className="p-4 bg-cyan-500/10 border border-cyan-400 rounded-full text-cyan-400 backdrop-blur-md shadow-[0_0_20px_rgba(34,211,238,0.3)] animate-bounce hover:bg-cyan-500/20 active:scale-95 transition-all"
+            >
+                <Terminal size={24} />
+            </button>
+        </div>
+      )}
 
       <style>{`
-        /* Dynamic Layout Adjustment for Main Content */
-        ${systemState === 'ONLINE' && !isHome ? `
-          main { 
-            margin-left: 25vw !important; 
-            width: 75vw !important; 
-            max-width: none !important;
-          }
-        ` : ''}
+        /* Dynamic Layout Adjustment for Main Content - Desktop Only */
+        @media (min-width: 1024px) {
+          ${systemState === 'ONLINE' && !isHome ? `
+            main { 
+              margin-left: 25vw !important; 
+              width: 75vw !important; 
+              max-width: none !important;
+            }
+          ` : ''}
+        }
       `}</style>
     </>
   );

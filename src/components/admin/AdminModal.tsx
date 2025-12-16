@@ -264,7 +264,7 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 bg-black/80 backdrop-blur-sm"
         >
             <CyberAlert 
                 isOpen={alertState.isOpen}
@@ -317,11 +317,11 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar relative bg-[#0a0f1c]">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 custom-scrollbar relative bg-[#0a0f1c]">
                     <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
                     
                     {activeSection === 'menu' ? (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                             {['projects', 'skills', 'experience', 'achievements', 'resume', 'roadmap', 'values', 'writings', 'about', 'contact', 'hero'].map(key => (
                                 <button 
                                     key={key} 
@@ -480,9 +480,9 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                                                         <div className="w-12 h-12 rounded overflow-hidden bg-gray-800">
                                                             <img src={item.image} className="w-full h-full object-cover" alt="" />
                                                         </div>
-                                                        <div>
-                                                            <h3 className="text-white font-mono group-hover:text-cyan-400 transition-colors">{item.title}</h3>
-                                                            <p className="text-xs text-gray-500 truncate max-w-md">{item.desc}</p>
+                                                        <div className="min-w-0 flex-1 pr-2">
+                                                            <h3 className="text-white font-mono group-hover:text-cyan-400 transition-colors truncate">{item.title}</h3>
+                                                            <p className="text-xs text-gray-500 line-clamp-1 md:line-clamp-2 break-all">{item.desc}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity pr-6">
@@ -696,31 +696,31 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                 </div>
 
                 {/* Footer Controls */}
-                <div className="px-6 py-4 border-t border-cyan-500/20 bg-[#050810] flex justify-between items-center">
+                <div className="px-4 md:px-6 py-4 border-t border-cyan-500/20 bg-[#050810] flex flex-col-reverse md:flex-row justify-between items-center gap-4 md:gap-0">
                     {view === 'EDIT' && (
                         <>
-                            <div>
+                            <div className="w-full md:w-auto">
                                 {selectedItem && !['about', 'contact', 'hero'].includes(activeSection) && (
                                     <button 
                                         onClick={() => handleDelete(selectedItem)}
                                         disabled={isSaving}
-                                        className="px-4 py-2 rounded-lg font-mono text-sm border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500 transition-all flex items-center gap-2"
+                                        className="w-full md:w-auto px-4 py-3 md:py-2 rounded-lg font-mono text-sm border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500 transition-all flex items-center justify-center gap-2"
                                     >
                                         <Trash2 size={16} /> DELETE
                                     </button>
                                 )}
                             </div>
-                            <div className="flex gap-4">
+                            <div className="flex flex-col md:flex-row gap-3 md:gap-4 w-full md:w-auto">
                                 <button 
                                     onClick={() => setView('LIST')}
-                                    className="px-6 py-2 rounded-lg font-mono text-sm border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white transition-all"
+                                    className="w-full md:w-auto px-6 py-3 md:py-2 rounded-lg font-mono text-sm border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white transition-all"
                                 >
                                     CANCEL
                                 </button>
                                 <button 
                                     onClick={() => handleSave(selectedItem)} 
                                     disabled={isSaving}
-                                    className="px-6 py-2 rounded-lg font-mono text-sm font-bold bg-cyan-600/20 border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500 hover:text-black transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full md:w-auto px-6 py-3 md:py-2 rounded-lg font-mono text-sm font-bold bg-cyan-600/20 border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500 hover:text-black transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSaving ? <RefreshCw className="animate-spin" size={16} /> : <Save size={16} />}
                                     {isSaving ? 'SAVING...' : 'COMMIT CHANGES'}

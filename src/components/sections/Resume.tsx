@@ -24,7 +24,8 @@ const Resume: React.FC = () => {
         function handleResize() {
             const container = document.getElementById('resume-container');
             if (container) {
-                setPageWidth(container.clientWidth - 60); // Padding adjustment
+                const padding = window.innerWidth < 768 ? 20 : 60;
+                setPageWidth(container.clientWidth - padding); 
             }
         }
         window.addEventListener('resize', handleResize);
@@ -60,8 +61,8 @@ const Resume: React.FC = () => {
                  </motion.a>
             </div>
 
-            <div className="max-w-5xl mx-auto w-full flex-grow bg-[#0c121e]/50 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm relative flex flex-col">
-                 <div id="resume-container" className="flex-grow overflow-y-auto overflow-x-hidden custom-scrollbar p-6 bg-[#1a1f2e] text-center">
+            <div className="max-w-5xl mx-auto w-full flex-grow bg-[#0c121e]/50 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm relative flex flex-col min-h-0">
+                 <div id="resume-container" className="flex-grow overflow-y-auto overflow-x-hidden custom-scrollbar p-2 md:p-6 bg-[#1a1f2e] text-center">
                      <Document
                         file={resumePath}
                         onLoadSuccess={onDocumentLoadSuccess}

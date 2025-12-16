@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../lib/firebase';
   import { signInWithEmailAndPassword, signOut, setPersistence, inMemoryPersistence } from 'firebase/auth';
+import { X } from 'lucide-react';
 
   interface TerminalIntroProps {
     onComplete: () => void;
     onAdminMode: (page: string) => void;
+    onMinimize?: () => void;
     instant?: boolean;
     isResizing?: boolean;
   }
@@ -16,7 +18,7 @@ import { auth } from '../../lib/firebase';
     'resume', 'contact', 'clear', 'home', 'ls'
   ];
   
-  const TerminalIntro: React.FC<TerminalIntroProps> = ({ onComplete, onAdminMode, instant = false, isResizing = false }) => {
+  const TerminalIntro: React.FC<TerminalIntroProps> = ({ onComplete, onAdminMode, onMinimize, instant = false, isResizing = false }) => {
     const navigate = useNavigate();
     const [completedLines, setCompletedLines] = useState<string[]>([]);
     const [currentLine, setCurrentLine] = useState('');
@@ -148,12 +150,13 @@ import { auth } from '../../lib/firebase';
                        { type: 'output', content: `> Opening Admin Interface for: ${adminMode.page?.toUpperCase() || 'MENU'}...`, color: 'text-cyan-400' }
                    ]);
                    
-                   setTimeout(() => {
-                       setAuthStep('NONE');
-                       // If page is null/menu, we pass 'menu'
-                       onAdminMode(adminMode.page || 'menu');
-                       setAdminMode({ active: false, page: null });
-                   }, 1000);
+                    setTimeout(() => {
+                        setAuthStep('NONE');
+                        // If page is null/menu, we pass 'menu'
+                        onAdminMode(adminMode.page || 'menu');
+                        setAdminMode({ active: false, page: null });
+                        if (onMinimize) onMinimize(); // Auto-minimize on success
+                    }, 1000);
   
                } catch (error: any) {
                    console.error("Auth failed", error);
@@ -209,10 +212,12 @@ import { auth } from '../../lib/firebase';
                       setHistory(newHistory);
                       setInput('');
                       
-                      setTimeout(() => {
-                           onAdminMode(targetPage);
-                      }, 800);
-                      return;
+                       
+                       setTimeout(() => {
+                            onAdminMode(targetPage);
+                            if (onMinimize) onMinimize(); // Auto-minimize on cookie usage
+                       }, 800);
+                       return;
                   }
   
                   setHistory([...newHistory, 
@@ -298,13 +303,18 @@ import { auth } from '../../lib/firebase';
               setCompletedLines([]); // Optional: clear boot lines too? Maybe
               setInput('');
               return; // Return early to avoid setting history
-          case '':
-              break;
-          default:
-              newHistory.push({ type: 'output', content: `Command not found: ${cleanCmd}. Type 'help' for list.`, color: 'text-red-400' });
-      }
-      
-      setHistory(newHistory);
+           case '':
+               break;
+           default:
+               newHistory.push({ type: 'output', content: `Command not found: ${cleanCmd}. Type 'help' for list.`, color: 'text-red-400' });
+       }
+       
+       // Auto-minimize for navigation commands
+       if (onMinimize && ['about','skills','experience','projects','roadmap','philosophy','achievements','blog','resume','contact','home'].includes(lowerCmd)) {
+           setTimeout(() => onMinimize(), 800);
+       }
+       
+       setHistory(newHistory);
       setInput('');
     };
   
@@ -329,6 +339,14 @@ import { auth } from '../../lib/firebase';
             <div className="mx-auto text-slate-400 text-xs font-medium opacity-75 font-mono">
               {user}@portfolio:~
             </div>
+            {onMinimize && (
+                <button 
+                  onClick={onMinimize}
+                  className="p-1 text-white/50 hover:text-white hover:bg-white/10 rounded-md transition-colors"
+                >
+                  <X size={16} />
+                </button>
+            )}
           </div>
           
           {/* Terminal Body */}

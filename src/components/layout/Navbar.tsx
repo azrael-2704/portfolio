@@ -66,7 +66,7 @@ const Navbar: React.FC = () => {
             <span className="font-mono text-lg font-bold tracking-tighter text-white leading-none group-hover:text-cyan-400 transition-colors">
             AMARTYA<span className="text-cyan-400 animate-pulse">_</span>DEV
             </span>
-            <span className="text-[10px] text-gray-500 font-mono tracking-widest hidden md:block">I Build Things That Think</span>
+            <span className="text-[10px] text-gray-500 font-mono tracking-widest block">I Build Things That Think</span>
         </div>
       </a>
 
