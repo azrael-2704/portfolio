@@ -32,7 +32,7 @@ import { auth } from '../../lib/firebase';
     const [emailInput, setEmailInput] = useState('');
     
     // Terminal User state for visual feedback
-    const [user, setUser] = useState("amartya"); 
+    const [user] = useState("amartya"); 
     
     const hasStarted = useRef(false);
     const inputRef = useRef<HTMLInputElement>(null);

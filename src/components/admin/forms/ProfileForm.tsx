@@ -1,8 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { User, Plus, X, BarChart, Camera } from 'lucide-react';
-import { storage } from '../../../lib/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
 import { compressImage } from '../../../lib/imageUtils';
 
 interface ProfileFormProps {

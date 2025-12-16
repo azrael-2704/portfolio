@@ -69,7 +69,7 @@ const Resume: React.FC = () => {
                         loading={<div className="text-cyan-400 animate-pulse font-mono mt-10">LOADING_DOCUMENT_STREAM...</div>}
                         error={<div className="text-red-400 font-mono mt-10">FAILED_TO_LOAD_DOCUMENT_STREAM</div>}
                      >
-                        {Array.from(new Array(numPages || 0), (el, index) => (
+                        {Array.from(new Array(numPages || 0), (_, index) => (
                            <Page 
                               key={`page_${index + 1}`} 
                               pageNumber={index + 1} 
