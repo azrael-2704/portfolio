@@ -1,15 +1,17 @@
+// Load environment variables
+import 'dotenv/config';
 
-const { initializeApp } = require("firebase/app");
-const { getFirestore, doc, setDoc, writeBatch, collection } = require("firebase/firestore");
-const { getAuth, signInWithEmailAndPassword } = require("firebase/auth");
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, setDoc, writeBatch, collection } from "firebase/firestore";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC5VE59u4z26onLfkvsZtsbLoXG2D3qMc4",
-  authDomain: "portfolio-dev2704.firebaseapp.com",
-  projectId: "portfolio-dev2704",
-  storageBucket: "portfolio-dev2704.firebasestorage.app",
-  messagingSenderId: "570892756158",
-  appId: "1:570892756158:web:f8c770513aecfe8f9b2aef"
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
