@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Base Styles (to be expanded later) */
+body {
+    background-color: #050a14;
+    @apply text-white;
+    overflow-x: hidden;
+}
+
+/* Terminal Scrollbar */
+.terminal-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal-scrollbar::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+.terminal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.2); 
+  border-radius: 3px;
+}
+
+.terminal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.5);
+}
+
+/* Global Custom Scrollbar (Used in Resume & Projects) */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #0c121e;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #1f2937;
+    border-radius: 5px;
+    border: 2px solid #0c121e;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #06b6d4; /* Cyan-500 */
+}
+.custom-scrollbar::-webkit-scrollbar-corner {
+    background: #0c121e;
+}
