@@ -15,7 +15,7 @@ import ContactForm from './forms/ContactForm';
 import ProfileForm from './forms/ProfileForm';
 import HeroForm from './forms/HeroForm';
 import ResumeForm from './forms/ResumeForm';
-import { useProjects, useSkills, useTimeline, useRoadmap, usePhilosophy, useBlogPosts, useProfile } from '../../hooks/usePortfolioData';
+import { useProjects, useSkills, useSkillCategories, useTimeline, useRoadmap, usePhilosophy, useBlogPosts, useProfile } from '../../hooks/usePortfolioData';
 import CyberAlert from '../ui/CyberAlert';
 
 interface AdminModalProps {
@@ -83,15 +83,21 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
     // Live Data Hooks
     const { data: projects, isFallback: isProjectsFallback } = useProjects();
     const { data: skills, isFallback: isSkillsFallback } = useSkills();
+    const { data: fetchedCategories, isFallback: isCategoriesFallback } = useSkillCategories();
     const { data: timeline, isFallback: isTimelineFallback } = useTimeline();
     const { data: roadmap, isFallback: isRoadmapFallback } = useRoadmap();
     const { data: philosophy, isFallback: isPhilosophyFallback } = usePhilosophy();
     const { data: blogs, isFallback: isBlogsFallback } = useBlogPosts();
     const { profile } = useProfile();
 
+    // Skills Architecture State
+    const [skillViewMode, setSkillViewMode] = useState<'CATEGORIES' | 'SKILLS_LIST'>('CATEGORIES');
+    const [activeCategory, setActiveCategory] = useState<any>(null);
+    const [localCategories, setLocalCategories] = useState<any[]>([]);
+
     const isCurrentSectionFallback = 
         activeSection === 'projects' ? isProjectsFallback :
-        activeSection === 'skills' ? isSkillsFallback :
+        activeSection === 'skills' ? (isSkillsFallback || isCategoriesFallback) :
         ['experience', 'achievements'].includes(activeSection) ? isTimelineFallback :
         activeSection === 'roadmap' ? isRoadmapFallback :
         activeSection === 'values' ? isPhilosophyFallback :
@@ -132,6 +138,7 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
         } finally {
             setIsSaving(false);
         }
+
     };
 
     // Firestore Save Logic
@@ -141,6 +148,8 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
             // Determine collection based on section
             let collectionName = '';
             let docId = data.id;
+
+            console.log("handleSave called", { activeSection, hasId: !!docId, data });
 
             switch(activeSection) {
                 case 'projects': collectionName = 'projects'; break;
@@ -152,35 +161,86 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                 case 'writings': collectionName = 'writings'; break;
                 case 'about': collectionName = 'portfolio'; docId = 'profile'; break;
                 case 'hero': collectionName = 'portfolio'; docId = 'profile'; break;
-                case 'resume': collectionName = 'portfolio'; docId = 'profile'; break; // Treat Resume as Profile Update
+                case 'resume': collectionName = 'portfolio'; docId = 'profile'; break; 
                 case 'contact': collectionName = 'portfolio'; docId = 'profile'; break;
             }
 
-            if (!collectionName) {
+            console.log("Collection determined:", collectionName);
+
+            if (!collectionName && activeSection !== 'skills') { // Skip check for skills as it might be category update
                 console.error("Unknown section collection");
                 setIsSaving(false);
                 return;
             }
 
+            // Handle Category Save (Special Case)
+            if (activeSection === 'skills' && skillViewMode === 'CATEGORIES' && data.color) { // Better Category Detection
+                 collectionName = 'skill_categories';
+                 let newId = data.id || data.label.toLowerCase().replace(/\s+/g, '-');
+                 
+                 // CHECK FOR RENAME (Migration)
+                 if (selectedItem && selectedItem.id && selectedItem.id !== newId) {
+                     console.log(`RENAMING CATEGORY: ${selectedItem.id} -> ${newId}`);
+                     const batch = writeBatch(db);
+
+                     // 1. Create New Category Doc
+                     const newRef = doc(db, 'skill_categories', newId);
+                     batch.set(newRef, { ...data, id: newId });
+
+                     // 2. Update All Skills belonging to old category
+                     // We need to find them from localItems (assuming fully loaded) or query
+                     // Since we load all skills, we can filter localItems if activeSection is skills
+                     // But wait, localCategories is what we are seeing. localItems has skills? 
+                     // We need to fetch all skills to be safe or rely on logic.
+                     // The AdminModal loads 'skills' into 'skills' data hook.
+                     // Let's rely on finding them in `skills` (the hook data) to include ALL skills, not just filtered ones.
+                     const relatedSkills = skills?.filter((s: any) => s.category === selectedItem.id) || [];
+                     
+                     relatedSkills.forEach((skill: any) => {
+                         const skillRef = doc(db, 'skills', skill.id);
+                         batch.update(skillRef, { category: newId });
+                     });
+
+                     // 3. Delete Old Category
+                     const oldRef = doc(db, 'skill_categories', selectedItem.id);
+                     batch.delete(oldRef);
+
+                     await batch.commit();
+                     
+                     setIsSaving(false);
+                     setView('LIST');
+                     showAlert('MIGRATION SUCCESS', `Renamed category and moved ${relatedSkills.length} skills.`, 'success');
+                     return;
+                 }
+
+                 docId = newId;
+                 data = { ...data, id: docId };
+            } else if (activeSection === 'skills' && !data.color) { 
+                 collectionName = 'skills';
+            }
+
             // Special handling for nested/specific updates
             if (activeSection === 'about' || activeSection === 'hero' || activeSection === 'resume') {
-                 // ProfileForm, HeroForm, ResumeForm modify 'profile' doc.
-                 // ResumeForm updates 'resumeUrl' field in profile.
                  const ref = doc(db, 'portfolio', 'profile');
                  await setDoc(ref, data, { merge: true });
             } 
             else if (activeSection === 'contact') {
-                 // Update existing profile.social
                  const ref = doc(db, 'portfolio', 'profile');
                  await setDoc(ref, { social: data }, { merge: true });
             }
             else {
                 // Standard Collection Item
                 if (!docId) {
+                    console.log("Creating NEW item for", collectionName);
                     // Create new ID if none
                     const newRef = doc(collection(db, collectionName));
                     docId = newRef.id;
-                    data = { ...data, id: docId };
+                    
+                    // Assign order to end of list
+                    const newOrder = localItems.length;
+                    data = { ...data, id: docId, order: newOrder };
+                    
+                    console.log("Generated ID:", docId, "Order:", newOrder);
                 }
                 const ref = doc(db, collectionName, docId);
                 await setDoc(ref, data, { merge: true });
@@ -198,14 +258,36 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
         }
     };
 
+    // Default Templates for New Items
+    const getEmptyTemplate = (section: string) => {
+        switch(section) {
+            case 'projects': return { title: '', desc: '', type: 'product', tech: [], details: [], image: '', link: '', github: '', domain: '', featured: false };
+            case 'skills': return { name: '', level: 50, category: 'core', version: '', desc: '' };
+            case 'experience': return { title: '', org: '', date: '', desc: '', type: 'work', side: 'right' };
+            case 'achievements': return { title: '', org: '', date: '', desc: '', type: 'achievement', side: 'right' };
+            case 'roadmap': return { title: '', date: '', desc: '', status: 'planned' };
+            case 'values': return { title: '', desc: '' };
+            case 'writings': return { title: '', date: new Date().toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric'}), readTime: '5 min', desc: '', tags: [] };
+            default: return {};
+        }
+    };
+
     const handleEdit = (item: any) => {
         setSelectedItem(item);
         setView('EDIT');
     };
 
     const handleAddNew = () => {
-        setSelectedItem(null); // Empty for new
-        setView('EDIT');
+        if (activeSection === 'skills' && skillViewMode === 'CATEGORIES') {
+            handleEdit({ isCategory: true, color: 'cyan', label: '', order: localCategories.length });
+        } else if (activeSection === 'skills' && skillViewMode === 'SKILLS_LIST' && activeCategory) {
+             // Pre-fill category for new skill
+             setSelectedItem({ ...getEmptyTemplate('skills'), category: activeCategory.id });
+             setView('EDIT');
+        } else {
+            setSelectedItem(getEmptyTemplate(activeSection)); 
+            setView('EDIT');
+        }
     };
 
 
@@ -226,7 +308,9 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
 
                     switch(activeSection) {
                         case 'projects': collectionName = 'projects'; break;
-                        case 'skills': collectionName = 'skills'; break;
+                        case 'skills': 
+                            collectionName = data.isCategory || (skillViewMode === 'CATEGORIES' && data.color) ? 'skill_categories' : 'skills'; 
+                            break;
                         case 'experience': 
                         case 'achievements': collectionName = 'timeline'; break;
                         case 'roadmap': collectionName = 'roadmap'; break;
@@ -299,9 +383,38 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
         setLocalItems(sourceData);
     }, [activeSection, projects, skills, timeline, roadmap, philosophy, blogs]);
 
+    // Sync Categories
+    useEffect(() => {
+        if (fetchedCategories) {
+            setLocalCategories(fetchedCategories);
+        }
+    }, [fetchedCategories]);
+
     const onReorderLocal = (newOrder: any[]) => {
         setLocalItems(newOrder); // Update UI instantly
         handleReorder(newOrder); 
+    };
+
+    const onReorderCategories = (newOrder: any[]) => {
+        setLocalCategories(newOrder);
+        saveCategoryOrder(newOrder); // Auto-save
+    };
+
+    const saveCategoryOrder = async (order: any[]) => {
+        // Debounce or just fire fire? The main reorder does fire fire.
+        // We'll mimic handleReorder which commits immediately
+        const batch = writeBatch(db);
+        order.forEach((cat, index) => {
+            const ref = doc(db, 'skill_categories', cat.id);
+            batch.update(ref, { order: index });
+        });
+        
+        try {
+            await batch.commit();
+            console.log("Category order auto-saved");
+        } catch (e) {
+            console.error("Failed to save category order", e);
+        }
     };
 
     return (
@@ -335,6 +448,9 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                                     if (view === 'EDIT') {
                                         setView('LIST');
                                         setSelectedItem(null);
+                                    } else if (activeSection === 'skills' && skillViewMode === 'SKILLS_LIST') {
+                                        setSkillViewMode('CATEGORIES');
+                                        setActiveCategory(null);
                                     } else {
                                         setActiveSection('menu');
                                         setView('LIST'); // Ensure view is reset
@@ -350,6 +466,12 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                         <h2 className="text-xl font-mono font-bold text-white tracking-wider flex items-center gap-2">
                             ADMIN_PANEL <span className="text-gray-500">//</span> 
                             <span className="text-cyan-400">{activeSection.toUpperCase()}</span>
+                            {activeSection === 'skills' && skillViewMode === 'SKILLS_LIST' && activeCategory && (
+                                <>
+                                    <span className="text-gray-500 mx-2">/</span>
+                                    <span className="text-cyan-400">{activeCategory.label || activeCategory.id}</span>
+                                </>
+                            )}
                             {view === 'EDIT' && <span className="text-xs text-gray-500 ml-2">[{selectedItem ? 'EDIT' : 'NEW'}]</span>}
                         </h2>
                     </div>
@@ -414,7 +536,8 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                                                 onClick={handleAddNew}
                                                 className="flex items-center gap-2 px-4 py-1.5 bg-cyan-900/20 text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500 hover:text-white transition-all text-xs font-mono font-bold"
                                             >
-                                                <Plus size={16} /> NEW_ENTRY
+                                                <Plus size={16} /> 
+                                                {activeSection === 'skills' && skillViewMode === 'CATEGORIES' ? 'NEW_CATEGORY' : 'NEW_ENTRY'}
                                             </button>
                                         )}
                                     </div>
@@ -430,87 +553,98 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                             {activeSection === 'skills' ? (
                                 <div className="space-y-8">
                                      {/* Derive Unique Categories from Data + Default Order */}
-                                     {(() => {
-                                         const defaultOrder = ['ml', 'ds', 'dev', 'ops', 'core'];
-                                         const usedCategories = Array.from(new Set(localItems.map((i: any) => i.category || 'other')));
-                                         // Sort: Default ones first in order, then others alphabetically
-                                         const sortedCategories = usedCategories.sort((a, b) => {
-                                             const idxA = defaultOrder.indexOf(a);
-                                             const idxB = defaultOrder.indexOf(b);
-                                             if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-                                             if (idxA !== -1) return -1;
-                                             if (idxB !== -1) return 1;
-                                             return a.localeCompare(b);
-                                         });
-
-                                         const categoryLabels: Record<string, string> = {
-                                             'ml': 'AI / MACHINE LEARNING',
-                                             'ds': 'DATA SCIENCE',
-                                             'dev': 'WEB DEVELOPMENT',
-                                             'ops': 'DEVOPS / CLOUD',
-                                             'core': 'CORE / LANGUAGES'
-                                         };
-
-                                         return sortedCategories.map(category => {
-                                             const categoryItems = localItems.filter((item: any) => (item.category || 'other') === category);
-                                             if (categoryItems.length === 0) return null;
-
-                                             return (
-                                                 <div key={category}>
-                                                     <h3 className="text-xs font-mono font-bold text-cyan-500/70 mb-3 border-b border-cyan-500/20 pb-1 uppercase tracking-wider">
-                                                         {categoryLabels[category] || category.toUpperCase()}
-                                                     </h3>
-                                                     <Reorder.Group 
-                                                         values={categoryItems} 
-                                                         onReorder={(newOrder) => {
-                                                             const others = localItems.filter((i: any) => (i.category || 'other') !== category);
-                                                             onReorderLocal([...others, ...newOrder]);
-                                                         }} 
-                                                         className="space-y-3"
-                                                     >
-                                                         {categoryItems.map((item: any) => (
-                                                             <Reorder.Item 
-                                                                key={item.id} 
-                                                                value={item} 
-                                                                className="w-full relative cursor-grab active:cursor-grabbing"
-                                                                whileDrag={{ scale: 1.02, zIndex: 100, boxShadow: "0px 10px 20px rgba(0,0,0,0.5)" }}
-                                                             >
-                                                               <div 
-                                                                   onClick={() => handleEdit(item)}
-                                                                   className="group flex flex-col justify-between p-4 border border-white/5 rounded-lg bg-[#0c121e] hover:border-cyan-500/50 transition-all hover:bg-[#0f1624] relative"
-                                                               >
-                                                                   <button 
-                                                                       onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(item); }}
-                                                                       className="absolute top-4 right-4 p-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                                                                       title="Delete"
-                                                                   >
-                                                                       <Trash2 size={16} />
-                                                                   </button>
-
-                                                                   <div className="flex justify-between items-center mb-2">
-                                                                        <h3 className="text-white font-mono text-sm font-bold group-hover:text-cyan-400 transition-colors truncate w-full" title={item.name}>
-                                                                            {item.name}
-                                                                        </h3>
-                                                                        <Edit2 size={12} className="text-gray-600 group-hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition-all shrink-0 ml-2" />
-                                                                    </div>
-                                                                    
-                                                                    <div className="space-y-1">
-                                                                        <div className="flex justify-between text-[10px] text-gray-500 font-mono">
-                                                                            <span>{item.version}</span>
-                                                                            <span>{item.level}%</span>
-                                                                        </div>
-                                                                        <div className="w-full bg-gray-800 h-1 rounded-full overflow-hidden">
-                                                                            <div className="bg-cyan-500 h-full" style={{ width: `${item.level}%` }}></div>
-                                                                        </div>
-                                                                    </div>
+                                    {/* SKILLS ARCHITECTURE: VIEW 1 - CATEGORIES */}
+                                    {/* SKILLS ARCHITECTURE: VIEW 1 - CATEGORIES */}
+                                    {skillViewMode === 'CATEGORIES' && (
+                                        <div className="space-y-4">
+                                            {/* Sub-bar removed as requested, main button now handles NEW CAT */}
+                                            
+                                            <Reorder.Group values={localCategories} onReorder={onReorderCategories} className="space-y-2">
+                                                {localCategories.map((cat: any) => (
+                                                    <Reorder.Item key={cat.id} value={cat} className="cursor-grab active:cursor-grabbing">
+                                                        <div 
+                                                            onClick={() => {
+                                                                setSkillViewMode('SKILLS_LIST');
+                                                                setActiveCategory(cat);
+                                                            }}
+                                                            className="group flex items-center justify-between p-4 border border-white/5 rounded-lg bg-[#0c121e] hover:border-cyan-500/50 hover:bg-[#0f1624] transition-all relative"
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className={`w-3 h-12 rounded-full bg-${cat.color}-500 opacity-80 shadow-[0_0_10px_rgba(0,0,0,0.5)]`}></div>
+                                                                <div>
+                                                                    <h3 className="text-white font-mono font-bold group-hover:text-cyan-400 transition-colors">{cat.label}</h3>
+                                                                    <p className="text-[10px] text-gray-500 font-mono tracking-wider uppercase opacity-50">ID: {cat.id}</p>
                                                                 </div>
-                                                             </Reorder.Item>
-                                                         ))}
-                                                     </Reorder.Group>
-                                                 </div>
-                                             );
-                                         });
-                                     })()}
+                                                            </div>
+                                                            
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-xs text-gray-600 font-mono bg-black/30 px-2 py-1 rounded">
+                                                                    {localItems.filter((i: any) => i.category === cat.id).length} SKILLS
+                                                                </span>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); handleEdit({ ...cat, isCategory: true }); }}
+                                                                    className="p-2 text-gray-500 hover:text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                >
+                                                                    <Edit2 size={14} />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); handleDelete({ ...cat, isCategory: true }); }}
+                                                                    className="p-2 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </Reorder.Item>
+                                                ))}
+                                            </Reorder.Group>
+                                        </div>
+                                    )}
+
+                                    {/* SKILLS ARCHITECTURE: VIEW 2 - SKILL LIST */}
+                                    {skillViewMode === 'SKILLS_LIST' && activeCategory && (
+                                        <div className="space-y-4">
+                                            {/* Sub-bar removed as requested, main toolbar handles Back/New */}
+                                            
+                                            {/* Filtered Reorder Group */}
+                                            <Reorder.Group 
+                                                values={localItems.filter((i: any) => i.category === activeCategory.id)} 
+                                                onReorder={(newOrder) => {
+                                                    const others = localItems.filter((i: any) => i.category !== activeCategory.id);
+                                                    onReorderLocal([...others, ...newOrder]);
+                                                }} 
+                                                className="space-y-3"
+                                            >
+                                                {localItems
+                                                    .filter((i: any) => i.category === activeCategory.id)
+                                                    .map((item: any) => (
+                                                    <Reorder.Item key={item.id} value={item} className="cursor-grab active:cursor-grabbing">
+                                                         <div 
+                                                            onClick={() => handleEdit(item)}
+                                                            className="group flex flex-col justify-between p-4 border border-white/5 rounded-lg bg-[#0c121e] hover:border-cyan-500/50 transition-all hover:bg-[#0f1624] relative h-[80px]"
+                                                        >
+                                                            <div className="flex justify-between items-start">
+                                                                <h3 className="text-white font-mono text-sm font-bold truncate pr-6">{item.name}</h3>
+                                                                <div className="space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                     <button onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(item); }} className="text-red-400 hover:text-red-300"><Trash2 size={12}/></button>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div className="space-y-1 mt-auto">
+                                                                <div className="flex justify-between text-[10px] text-gray-500 font-mono">
+                                                                    <span>{item.version}</span>
+                                                                    <span>{item.level}%</span>
+                                                                </div>
+                                                                <div className="w-full bg-gray-800 h-1 rounded-full overflow-hidden">
+                                                                    <div className={`h-full bg-${activeCategory.color || 'cyan'}-500`} style={{ width: `${item.level}%` }}></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Reorder.Item>
+                                                ))}
+                                            </Reorder.Group>
+                                        </div>
+                                    )}
                                 </div>
                             ) : 
                             
@@ -534,7 +668,7 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                                                     </button>
                                                     <div className="flex items-center gap-4">
                                                         <div className="w-12 h-12 rounded overflow-hidden bg-gray-800">
-                                                            <img src={item.image} className="w-full h-full object-cover" alt="" />
+                                                            <img src={item.image} className="w-full h-full object-cover object-top" alt="" />
                                                         </div>
                                                         <div className="min-w-0 flex-1 pr-2">
                                                             <h3 className="text-white font-mono group-hover:text-cyan-400 transition-colors truncate">{item.title}</h3>

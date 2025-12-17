@@ -227,3 +227,11 @@ export const BLOG_POSTS = [
       link: "#" 
   }
 ];
+
+export const SKILLS_CATEGORIES = [
+    { id: "ml", label: "AI / Machine Learning", color: "cyan", order: 0 },
+    { id: "ds", label: "Data Science", color: "purple", order: 1 },
+    { id: "dev", label: "Web Development", color: "green", order: 2 },
+    { id: "ops", label: "DevOps / Cloud", color: "amber", order: 3 },
+    { id: "core", label: "Core / Languages", color: "pink", order: 4 }
+];

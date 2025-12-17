@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { collection, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { PROJECTS, SKILLS, TIMELINE, ROADMAP, PHILOSOPHY, BLOG_POSTS, PROFILE } from '../data/portfolio';
+import { PROJECTS, SKILLS, TIMELINE, ROADMAP, PHILOSOPHY, BLOG_POSTS, PROFILE, SKILLS_CATEGORIES } from '../data/portfolio';
 
 // Generic Hook Factory for Collections
 function useCollectionData(collectionName: string, fallbackData: any[]) {
@@ -41,6 +41,7 @@ export const useProjects = () => useCollectionData('projects', PROJECTS);
 
 // Skills might need custom sorting if not done in DB
 export const useSkills = () => useCollectionData('skills', SKILLS);
+export const useSkillCategories = () => useCollectionData('skill_categories', SKILLS_CATEGORIES);
 
 // Timeline needs sorting by Date usually, but for now we trust the DB order or sort client side
 export const useTimeline = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useTimeline } from '../../hooks/usePortfolioData';
-import { Briefcase, GraduationCap, Award, Trophy } from 'lucide-react';
+import { Briefcase, GraduationCap, Award, Trophy, Users } from 'lucide-react';
 
 import GlitchText from '../GlitchText';
 
@@ -74,18 +74,16 @@ const Experience: React.FC = () => {
                         if ((item as any).side) {
                              isRight = (item as any).side === 'right';
                         }
-                        
-                        // Theme Logic
                         const THEME = {
                              work: { color: 'cyan', icon: Briefcase, border: 'border-cyan-500/30', bg: 'bg-cyan-500/10' },
                              education: { color: 'purple', icon: GraduationCap, border: 'border-purple-500/30', bg: 'bg-purple-500/10' },
+                             leadership: { color: 'pink', icon: Users, border: 'border-pink-500/30', bg: 'bg-pink-500/10' },
                              certification: { color: 'green', icon: Award, border: 'border-green-500/30', bg: 'bg-green-500/10' },
                              achievement: { color: 'amber', icon: Trophy, border: 'border-amber-500/30', bg: 'bg-amber-500/10' }
                         };
                         const theme = THEME[item.type as keyof typeof THEME] || THEME.work;
                         
-                        // Dynamic Height only if it's a range item AND on the right (timeline aesthetic)
-                        // OR we just apply it everywhere if isRange is true, regardless of side.
+                        // Dynamic Height only if it's a range item AND on the right
                         const cardHeight = isRange ? getDurationHeight(item.date) : 'auto';
 
                         return (
@@ -100,7 +98,12 @@ const Experience: React.FC = () => {
                                 <div className="hidden md:block w-1/2" />
 
                                 {/* Node Center */}
-                                <div className={`absolute left-8 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#050a14] border-2 z-10 mt-6 shadow-[0_0_10px_currentColor] transition-colors ${theme.color === 'cyan' ? 'text-cyan-400' : theme.color === 'purple' ? 'text-purple-400' : theme.color === 'green' ? 'text-green-400' : 'text-amber-400'} border-current`}>
+                                <div className={`absolute left-8 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[#050a14] border-2 z-10 mt-6 shadow-[0_0_10px_currentColor] transition-colors ${
+                                    theme.color === 'cyan' ? 'text-cyan-400' : 
+                                    theme.color === 'purple' ? 'text-purple-400' : 
+                                    theme.color === 'pink' ? 'text-pink-400' : 
+                                    theme.color === 'green' ? 'text-green-400' : 'text-amber-400'
+                                } border-current`}>
                                      <div className={`w-2 h-2 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-current opacity-80`} />
                                 </div>
 
@@ -115,17 +118,26 @@ const Experience: React.FC = () => {
                                     >
                                         <div className="flex justify-between items-start mb-2">
                                              <div className="flex flex-col">
-                                                 <span className={`text-xs font-mono mb-1 opacity-70 ${theme.color === 'cyan' ? 'text-cyan-300' : 'text-gray-400'}`}>{item.date}</span>
+                                                 <span className={`text-xs font-mono mb-1 opacity-70 ${
+                                                     theme.color === 'cyan' ? 'text-cyan-300' : 
+                                                     theme.color === 'pink' ? 'text-pink-300' : 
+                                                     'text-gray-400'
+                                                 }`}>{item.date}</span>
                                                  <h3 className="text-xl font-bold text-white font-mono leading-tight">{item.title}</h3>
                                              </div>
-                                            <theme.icon className={`${theme.color === 'cyan' ? 'text-cyan-400' : theme.color === 'purple' ? 'text-purple-400' : theme.color === 'green' ? 'text-green-400' : 'text-amber-400'}`} size={20} />
+                                            <theme.icon className={`${
+                                                theme.color === 'cyan' ? 'text-cyan-400' : 
+                                                theme.color === 'purple' ? 'text-purple-400' : 
+                                                theme.color === 'pink' ? 'text-pink-400' :
+                                                theme.color === 'green' ? 'text-green-400' : 'text-amber-400'
+                                            } shrink-0`} size={20} />
                                         </div>
                                         
                                         <div className={`text-sm font-mono mb-3 opacity-90 ${theme.color === 'cyan' ? 'text-cyan-200' : 'text-gray-300'}`}>
                                             {item.org}
                                         </div>
                                         
-                                        <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                                        <p className="text-gray-400 text-sm leading-relaxed mb-4 whitespace-pre-wrap">
                                             {item.desc}
                                         </p>
 

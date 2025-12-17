@@ -7,5 +7,10 @@ export default {
   theme: {
     extend: {},
   },
+  safelist: [
+    {
+      pattern: /bg-(cyan|sky|blue|indigo|purple|pink|red|orange|amber|green|teal|emerald|violet|yellow|fuchsia|rose)-500/,
+    },
+  ],
   plugins: [],
 }

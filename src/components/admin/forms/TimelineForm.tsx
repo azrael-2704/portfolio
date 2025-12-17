@@ -28,11 +28,9 @@ const TimelineForm: React.FC<TimelineFormProps> = ({ initialData, onChange, rest
     }, [initialData, restrictType]);
 
     const handleChange = (field: string, value: any) => {
-        setFormData(prev => {
-            const up = { ...prev, [field]: value };
-            onChange(up);
-            return up;
-        });
+        const up = { ...formData, [field]: value };
+        setFormData(up);
+        onChange(up);
     };
 
     return (
@@ -98,6 +96,7 @@ const TimelineForm: React.FC<TimelineFormProps> = ({ initialData, onChange, rest
                     >
                         <option value="work">Work Experience</option>
                         <option value="education">Education</option>
+                        <option value="leadership">Leadership / Activity</option>
                         <option value="certification">Certification</option>
                         <option value="achievement">Achievement / Award</option>
                     </select>

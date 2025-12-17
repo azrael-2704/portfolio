@@ -20,11 +20,9 @@ const PhilosophyForm: React.FC<PhilosophyFormProps> = ({ initialData, onChange }
     }, [initialData]);
 
     const handleChange = (field: string, value: any) => {
-        setFormData(prev => {
-            const up = { ...prev, [field]: value };
-            onChange(up);
-            return up;
-        });
+        const up = { ...formData, [field]: value };
+        setFormData(up);
+        onChange(up);
     };
 
     return (

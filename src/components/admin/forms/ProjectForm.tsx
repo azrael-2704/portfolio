@@ -34,11 +34,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialData, onChange }) => {
     }, [initialData]);
 
     const handleChange = (field: string, value: any) => {
-        setFormData(prev => {
-            const up = { ...prev, [field]: value };
-            onChange(up);
-            return up;
-        });
+        const up = { ...formData, [field]: value };
+        setFormData(up);
+        onChange(up);
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,30 +69,25 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialData, onChange }) => {
     const handleArrayChange = (field: 'tech' | 'details', index: number, value: string) => {
         const newArray = [...formData[field]];
         newArray[index] = value;
-        setFormData(prev => {
-            const up = { ...prev, [field]: newArray };
-            onChange(up);
-            return up;
-        });
+        
+        const up = { ...formData, [field]: newArray };
+        setFormData(up);
+        onChange(up);
     };
 
     const addArrayItem = (field: 'tech' | 'details') => {
-        setFormData(prev => {
-            const up = { ...prev, [field]: [...prev[field], ''] };
-            onChange(up);
-            return up;
-        });
+        const up = { ...formData, [field]: [...formData[field], ''] };
+        setFormData(up);
+        onChange(up);
     };
 
     const removeArrayItem = (field: 'tech' | 'details', index: number) => {
-        setFormData(prev => {
-            const up = {
-                ...prev,
-                [field]: prev[field].filter((_, i) => i !== index)
-            };
-            onChange(up);
-            return up;
-        });
+        const up = {
+            ...formData,
+            [field]: formData[field].filter((_, i) => i !== index)
+        };
+        setFormData(up);
+        onChange(up);
     };
 
     return (
@@ -170,7 +163,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialData, onChange }) => {
                     {/* Image Upload Area */}
                     <div className="w-full h-48 rounded border border-white/10 overflow-hidden bg-black/50 relative group">
                         {formData.image ? (
-                            <img src={formData.image} alt="Preview" className="w-full h-full object-cover opacity-80 group-hover:opacity-40 transition-opacity" />
+                            <img src={formData.image} alt="Preview" className="w-full h-full object-cover object-top opacity-80 group-hover:opacity-40 transition-opacity" />
                         ) : (
                             <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 gap-2">
                                 <Camera size={32} />

@@ -23,7 +23,7 @@ const ProjectCard = ({ project, index, onClick }: { project: any, index: number,
             <img 
                 src={project.image} 
                 alt={project.title} 
-                className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
+                className="w-full h-full object-cover object-top opacity-60 group-hover:opacity-80 group-hover:scale-105 transition-all duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1c] via-[#0a0f1c]/20 to-transparent" />
         </div>
@@ -126,7 +126,7 @@ const ProjectModal = ({ project, onClose }: { project: any, onClose: () => void 
                     <img 
                         src={project.image} 
                         alt={project.title} 
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-top"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0c121e] via-transparent to-transparent" />
                 </div>
@@ -149,7 +149,7 @@ const ProjectModal = ({ project, onClose }: { project: any, onClose: () => void 
                         <h2 className="text-3xl md:text-5xl font-bold font-mono text-white mb-6">
                             {project.title}
                         </h2>
-                        <p className="text-gray-300 leading-relaxed text-lg">
+                        <p className="text-gray-300 leading-relaxed text-lg whitespace-pre-wrap">
                             {project.desc}
                         </p>
                     </div>

@@ -59,11 +59,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ initialData, onChange, onBusy
     }, [initialData]);
 
     const handleChange = (field: string, value: any) => {
-        setFormData(prev => {
-            const up = { ...prev, [field]: value };
-            onChange(up); // Propagate up
-            return up;
-        });
+        const up = { ...formData, [field]: value };
+        setFormData(up);
+        onChange(up);
     };
 
     // Titles Array
