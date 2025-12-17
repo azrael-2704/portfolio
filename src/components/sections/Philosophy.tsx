@@ -1,13 +1,20 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { usePhilosophy } from '../../hooks/usePortfolioData';
-import { Lightbulb, Users, GitMerge, Scale, Box } from 'lucide-react';
+import { Lightbulb, Users, GitMerge, Scale, Search, Shield, Zap, Target, Compass, Cpu, Code2, Layers, RefreshCw, Activity, Box, Terminal } from 'lucide-react';
 
 import GlitchText from '../GlitchText';
 
 const Philosophy: React.FC = () => {
-  const icons = [Lightbulb, Users, GitMerge, Scale]; 
+  /* const icons = [Lightbulb, Users, GitMerge, Scale]; Remove old array */
   const { data: philosophy } = usePhilosophy();
+
+  // Icon Map
+  const IconMap: any = {
+    Lightbulb, Users, GitMerge, Scale, Search, Shield, Zap, 
+    Target, Compass, Cpu, Code2, Layers, RefreshCw, Activity, 
+    Box, Terminal
+  };
 
   return (
     <section className="pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden text-white">
@@ -28,7 +35,7 @@ const Philosophy: React.FC = () => {
 
        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
           {philosophy.map((item:any, index:number) => {
-             const Icon = icons[index % icons.length];
+             const Icon = IconMap[item.icon] || Lightbulb; // Dynamic with fallback
              return (
                <motion.div
                  key={index}

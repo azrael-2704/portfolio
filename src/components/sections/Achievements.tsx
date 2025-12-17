@@ -51,7 +51,7 @@ const Achievements: React.FC = () => {
                              </h3>
                              <div className="text-sm text-gray-400 font-mono mb-4">{item.org}</div>
                              
-                             <p className="text-gray-500 text-sm leading-relaxed flex-grow">
+                             <p className="text-gray-500 text-sm leading-relaxed flex-grow whitespace-pre-wrap">
                                  {item.desc}
                              </p>
                          </div>

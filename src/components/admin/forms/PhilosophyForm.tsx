@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Box } from 'lucide-react';
+import { Box, Lightbulb, Users, GitMerge, Scale, Search, Shield, Zap, Target, Compass, Cpu, Code2, Layers, RefreshCw, Activity, Terminal } from 'lucide-react';
 
 interface PhilosophyFormProps {
     initialData?: any;
@@ -10,12 +10,26 @@ interface PhilosophyFormProps {
 const PhilosophyForm: React.FC<PhilosophyFormProps> = ({ initialData, onChange }) => {
     const [formData, setFormData] = useState({
         title: '',
-        desc: ''
+        desc: '',
+        icon: 'Lightbulb' // Default
     });
+
+    const ICONS = [
+        'Lightbulb', 'Users', 'GitMerge', 'Scale', 'Search', 'Shield', 'Zap', 
+        'Target', 'Compass', 'Cpu', 'Code2', 'Layers', 'RefreshCw', 'Activity', 
+        'Box', 'Terminal'
+    ];
+
+    // Icon Map for rendering in form
+    const IconMap: any = {
+        Lightbulb, Users, GitMerge, Scale, Search, Shield, Zap, 
+        Target, Compass, Cpu, Code2, Layers, RefreshCw, Activity, 
+        Box, Terminal
+    };
 
     useEffect(() => {
         if (initialData) {
-            setFormData(initialData);
+            setFormData({ ...initialData, icon: initialData.icon || 'Lightbulb' });
         }
     }, [initialData]);
 
@@ -43,6 +57,25 @@ const PhilosophyForm: React.FC<PhilosophyFormProps> = ({ initialData, onChange }
                     className="w-full bg-[#050a14] border border-white/10 rounded p-2 text-white outline-none focus:border-cyan-500/50"
                     placeholder="e.g. First Principles"
                 />
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-xs font-mono text-cyan-400">ICON_SYMBOL</label>
+                <div className="grid grid-cols-8 gap-2 bg-[#050a14] p-4 rounded border border-white/10">
+                    {ICONS.map(iconName => {
+                        const Icon = IconMap[iconName];
+                        return (
+                            <button
+                                key={iconName}
+                                onClick={() => handleChange('icon', iconName)}
+                                className={`p-2 rounded flex items-center justify-center transition-all ${formData.icon === iconName ? 'bg-cyan-500 text-white' : 'text-gray-500 hover:text-cyan-400 hover:bg-white/5'}`}
+                                title={iconName}
+                            >
+                                <Icon size={20} />
+                            </button>
+                        )
+                    })}
+                </div>
             </div>
 
             <div className="space-y-2">
