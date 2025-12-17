@@ -77,9 +77,9 @@ const Hero: React.FC<HeroProps> = ({ onStart }) => {
                 transition={{ delay: 0.4, type: "spring", stiffness: 100, damping: 20 }}
                 className="text-xl md:text-2xl text-gray-400 font-mono mb-8 h-8 flex items-center gap-3"
             >
-                <span className="text-gray-500">&lt;</span>
+                <span className="text-gray-500">&lt;/</span>
                 <span className="text-gray-200">{profile.title}</span>
-                <span className="text-gray-500">/&gt;</span>
+                <span className="text-gray-500">&gt;</span>
             </motion.div>
 
              {/* Bio */}
