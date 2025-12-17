@@ -134,7 +134,7 @@ interface Skill {
   id: string;
   name: string;
   level: number; // 0-100 (Determines progress bar width)
-  category: 'ml' | 'ds' | 'dev' | 'ops' | 'core';
+  category: string; // Dynamic Category ID (linked to skill_categories)
   version?: string; // e.g. "ES6+", "v18"
   desc?: string; // Tooltip text
 }

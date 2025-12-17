@@ -23,9 +23,9 @@ The portfolio features a fully interactive integrated terminal. You can use the 
 | `projects` | Accesses the **Project Archive**. |
 | `skills` | Displays the **Technical Matrix** (Skills). |
 | `roadmap` | Shows the **Future Nodes** (Roadmap/Goals). |
-| `philosophy` | detailed view of **Core Axioms** (Values). |
+| `philosophy` | detailed view of **Core Axioms** (Philosophy). |
 | `achievements` | Lists **Honors & Awards**. |
-| `blog` | Opens the **Data Logs** (Writings). |
+| `writings` | Opens the **Data Logs** (Writings). |
 | `resume` | Generates and displays the **Personnel File** (PDF Resume). |
 | `contact` | Initiates the **Secure Uplink** (Contact Form). |
 | `home` | Returns to the **Neural Navigation** (Home Screen). |
