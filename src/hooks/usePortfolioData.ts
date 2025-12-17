@@ -8,6 +8,7 @@ import { PROJECTS, SKILLS, TIMELINE, ROADMAP, PHILOSOPHY, BLOG_POSTS, PROFILE } 
 function useCollectionData(collectionName: string, fallbackData: any[]) {
     const [data, setData] = useState<any[]>(fallbackData);
     const [loading, setLoading] = useState(true);
+    const [isFallback, setIsFallback] = useState(true);
 
     useEffect(() => {
         const q = query(collection(db, collectionName), orderBy('order', 'asc'));
@@ -19,6 +20,9 @@ function useCollectionData(collectionName: string, fallbackData: any[]) {
             // If DB is empty (first load before sync?), keep fallback, else use DB
             if (items.length > 0) {
                  setData(items);
+                 setIsFallback(false);
+            } else {
+                setIsFallback(true);
             }
             setLoading(false);
         }, (error) => {
@@ -29,7 +33,7 @@ function useCollectionData(collectionName: string, fallbackData: any[]) {
         return () => unsubscribe();
     }, [collectionName]);
 
-    return { data, loading };
+    return { data, loading, isFallback };
 }
 
 // Specific Hooks
@@ -40,9 +44,9 @@ export const useSkills = () => useCollectionData('skills', SKILLS);
 
 // Timeline needs sorting by Date usually, but for now we trust the DB order or sort client side
 export const useTimeline = () => {
-    const { data, loading } = useCollectionData('timeline', TIMELINE);
+    const { data, loading, isFallback } = useCollectionData('timeline', TIMELINE);
     // Optional: Sort by date descending?
-    return { data, loading };
+    return { data, loading, isFallback };
 };
 
 export const useRoadmap = () => useCollectionData('roadmap', ROADMAP);

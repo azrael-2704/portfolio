@@ -81,13 +81,58 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
     const [selectedItem, setSelectedItem] = useState<any>(null);
 
     // Live Data Hooks
-    const { data: projects } = useProjects();
-    const { data: skills } = useSkills();
-    const { data: timeline } = useTimeline();
-    const { data: roadmap } = useRoadmap();
-    const { data: philosophy } = usePhilosophy();
-    const { data: blogs } = useBlogPosts();
+    const { data: projects, isFallback: isProjectsFallback } = useProjects();
+    const { data: skills, isFallback: isSkillsFallback } = useSkills();
+    const { data: timeline, isFallback: isTimelineFallback } = useTimeline();
+    const { data: roadmap, isFallback: isRoadmapFallback } = useRoadmap();
+    const { data: philosophy, isFallback: isPhilosophyFallback } = usePhilosophy();
+    const { data: blogs, isFallback: isBlogsFallback } = useBlogPosts();
     const { profile } = useProfile();
+
+    const isCurrentSectionFallback = 
+        activeSection === 'projects' ? isProjectsFallback :
+        activeSection === 'skills' ? isSkillsFallback :
+        ['experience', 'achievements'].includes(activeSection) ? isTimelineFallback :
+        activeSection === 'roadmap' ? isRoadmapFallback :
+        activeSection === 'values' ? isPhilosophyFallback :
+        activeSection === 'writings' ? isBlogsFallback : false;
+
+    // Firestore Sync Logic (Initialize DB from Static)
+    const handleSync = async () => {
+        setIsSaving(true);
+        try {
+            let collectionName = '';
+            switch(activeSection) {
+                case 'projects': collectionName = 'projects'; break;
+                case 'skills': collectionName = 'skills'; break;
+                case 'experience': 
+                case 'achievements': collectionName = 'timeline'; break;
+                case 'roadmap': collectionName = 'roadmap'; break;
+                case 'values': collectionName = 'philosophy'; break;
+                case 'writings': collectionName = 'writings'; break;
+                default: return;
+            }
+
+            if (!collectionName) return;
+
+            const batch = writeBatch(db);
+            localItems.forEach((item, index) => {
+                // Ensure ID exists, or generate one
+                const docRef = doc(db, collectionName, item.id || `item_${Date.now()}_${index}`);
+                // Add order field if missing
+                batch.set(docRef, { ...item, order: index }, { merge: true });
+            });
+
+            await batch.commit();
+            console.log(`Synced ${collectionName} to Firestore`);
+            showAlert('DATABASE SYNCHRONIZED', 'Static content has been uploaded to the database. You can now edit and delete items.', 'success');
+        } catch (e: any) {
+            console.error("Sync failed", e);
+            showAlert('SYNC FAILED', e.message, 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     // Firestore Save Logic
     const handleSave = async (data: any) => {
@@ -350,19 +395,30 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                                      'SELECT ITEM TO EDIT'}
                                 </p>
                                 <div className="flex gap-4">
-                                    {['projects', 'skills', 'experience', 'roadmap', 'values', 'writings'].includes(activeSection) && (
-                                        <p className="text-[10px] text-gray-600 self-center uppercase tracking-widest animate-pulse">
-                                            DRAG TO REORDER
-                                        </p>
-                                    )}
-                                    {!['about', 'contact', 'hero', 'resume'].includes(activeSection) && (
-                                        <button 
-                                            onClick={handleAddNew}
-                                            className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/50 text-cyan-400 rounded hover:bg-cyan-500/20 text-xs font-mono font-bold transition-all"
-                                        >
-                                            <Plus size={14} /> NEW_ENTRY
-                                        </button>
-                                    )}
+                                 {isCurrentSectionFallback ? (
+                                    <button 
+                                        onClick={handleSync}
+                                        disabled={isSaving}
+                                        className="text-xs font-mono text-amber-400 border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 rounded flex items-center gap-2 hover:bg-amber-500/20 transition-colors animate-pulse"
+                                    >
+                                        <RefreshCw size={14} className={isSaving ? "animate-spin" : ""} />
+                                        INITIALIZE DATABASE TO EDIT
+                                    </button>
+                                ) : (
+                                    <div className="flex items-center gap-4">
+                                        {['projects', 'skills', 'experience', 'roadmap', 'values', 'writings'].includes(activeSection) && (
+                                            <span className="text-xs font-mono text-gray-600 hidden md:block">DRAG TO REORDER</span>
+                                        )}
+                                        {!['about', 'contact', 'hero', 'resume'].includes(activeSection) && (
+                                            <button 
+                                                onClick={handleAddNew}
+                                                className="flex items-center gap-2 px-4 py-1.5 bg-cyan-900/20 text-cyan-400 border border-cyan-500/50 rounded hover:bg-cyan-500 hover:text-white transition-all text-xs font-mono font-bold"
+                                            >
+                                                <Plus size={16} /> NEW_ENTRY
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                                 </div>
                             </div>
 
