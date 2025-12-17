@@ -83,7 +83,7 @@ const Contact: React.FC = () => {
     };
 
     return (
-        <section className="min-h-screen pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden">
+        <section className="pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden">
              
              <CyberAlert 
                 isOpen={alertState.isOpen}

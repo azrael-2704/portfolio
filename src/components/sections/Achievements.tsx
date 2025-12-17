@@ -10,7 +10,7 @@ const Achievements: React.FC = () => {
     const achievements = timeline.filter((item: any) => item.type === 'achievement' || item.type === 'certification');
 
     return (
-        <section className="min-h-screen pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden">
+        <section className="pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden">
              <motion.div 
                 initial={{ opacity: 0, x: -20 }} 
                 animate={{ opacity: 1, x: 0 }}

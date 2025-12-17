@@ -34,7 +34,7 @@ const Resume: React.FC = () => {
     }, []);
 
     return (
-        <section className="min-h-screen pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden flex flex-col h-screen">
+        <section className="pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden flex flex-col h-[calc(100vh-4rem)]">
              <div className="w-full mb-8 flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
                  <motion.div 
                     initial={{ opacity: 0, x: -20 }} 

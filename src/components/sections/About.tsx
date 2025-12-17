@@ -99,7 +99,7 @@ const About: React.FC = () => {
   const { profile } = useProfile();
 
   return (
-    <section id="about" className="min-h-screen pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden">
+    <section id="about" className="pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden">
       
       {/* Background Decor */}
       <div className="absolute top-20 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl -z-10" />

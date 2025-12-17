@@ -10,7 +10,7 @@ const Philosophy: React.FC = () => {
   const { data: philosophy } = usePhilosophy();
 
   return (
-    <section className="min-h-screen pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden">
+    <section className="pt-[34px] pb-20 px-6 md:px-16 relative z-10 w-full overflow-hidden text-white">
        {/* Header */}
        <motion.div 
           initial={{ opacity: 0, x: -20 }} 
