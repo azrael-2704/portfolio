@@ -489,7 +489,7 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                     
                     {activeSection === 'menu' ? (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                            {['projects', 'skills', 'experience', 'achievements', 'resume', 'roadmap', 'values', 'writings', 'about', 'contact', 'hero'].map(key => (
+                            {['experience', 'projects', 'skills', 'roadmap', 'values', 'achievements', 'writings', 'resume', 'hero', 'about', 'contact'].map(key => (
                                 <button 
                                     key={key} 
                                     onClick={() => setActiveSection(key)}
@@ -498,7 +498,7 @@ const AdminModal: React.FC<AdminModalProps> = ({ section, onClose }) => {
                                     <div className="text-cyan-400 group-hover:scale-110 transition-transform">
                                         {key === 'hero' ? <Terminal size={32}/> : <Edit2 size={32}/> }
                                     </div>
-                                    <span className="text-sm font-mono text-gray-300 uppercase tracking-widest">{key}</span>
+                                    <span className="text-sm font-mono text-gray-300 uppercase tracking-widest">{key === 'values' ? 'PHILOSOPHY' : key}</span>
                                 </button>
                             ))}
                         </div>
