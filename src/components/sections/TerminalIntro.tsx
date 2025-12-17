@@ -14,9 +14,11 @@ import { X } from 'lucide-react';
   
   const AVAILABLE_COMMANDS = [
     'help', 'about', 'experience', 'projects', 'skills', 
-    'roadmap', 'philosophy', 'achievements', 'blog', 
+    'roadmap', 'philosophy', 'achievements', 'writings', 
     'resume', 'contact', 'clear', 'home', 'ls'
   ];
+
+
   
   const TerminalIntro: React.FC<TerminalIntroProps> = ({ onComplete, onAdminMode, onMinimize, instant = false, isResizing = false }) => {
     const navigate = useNavigate();
@@ -249,7 +251,7 @@ import { X } from 'lucide-react';
               newHistory.push({ type: 'output', content: "  - roadmap     : Future Plans", color: 'text-gray-300' });
               newHistory.push({ type: 'output', content: "  - philosophy  : Core Values", color: 'text-gray-300' });
               newHistory.push({ type: 'output', content: "  - achievements: Achievements", color: 'text-gray-300' });
-              newHistory.push({ type: 'output', content: "  - blog        : Writings", color: 'text-gray-300' });
+              newHistory.push({ type: 'output', content: "  - writings    : Writings", color: 'text-gray-300' });
               newHistory.push({ type: 'output', content: "  - resume      : View Resume", color: 'text-gray-300' });
               newHistory.push({ type: 'output', content: "  - contact     : Send Message", color: 'text-gray-300' });
               newHistory.push({ type: 'output', content: "  - clear       : Clear Terminal", color: 'text-gray-300' });
@@ -290,7 +292,7 @@ import { X } from 'lucide-react';
               newHistory.push({ type: 'output', content: "Navigating to /experience...", color: 'text-green-400' });
               navigate('/experience');
               break;
-          case 'blog':
+          case 'writings':
               newHistory.push({ type: 'output', content: "Navigating to /blog...", color: 'text-green-400' });
               navigate('/blog');
               break;
@@ -310,7 +312,7 @@ import { X } from 'lucide-react';
        }
        
        // Auto-minimize for navigation commands
-       if (onMinimize && ['about','skills','experience','projects','roadmap','philosophy','achievements','blog','resume','contact','home'].includes(lowerCmd)) {
+       if (onMinimize && ['about','skills','experience','projects','roadmap','philosophy','achievements','writings','resume','contact','home'].includes(lowerCmd)) {
            setTimeout(() => onMinimize(), 800);
        }
        
