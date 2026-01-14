@@ -50,7 +50,7 @@ import { X } from 'lucide-react';
     // Dynamic Age Calculation (From July 2, 2004)
     const birthDate = new Date('2004-07-02');
     const currentDate = new Date();
-    const ageInYears = ((currentDate.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(0);
+    const ageInYears = Math.floor((currentDate.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
   
     // Dynamic Experience Calculation (From June 5, 2024)
     const expStartDate = new Date('2024-06-05');
